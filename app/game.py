@@ -1,11 +1,11 @@
 import logging
 import pygame
+import math
 
 from app.events import EventManager
 from app.gamestate import GameStateController
 from app.render import Render
 
-from app.utils.logger import pp
 
 class Game:
     """Класс игры.
@@ -29,12 +29,26 @@ class Game:
         self.events.subscribe(event_type=pygame.MOUSEBUTTONDOWN, callback=self._handle_mouse, kwargs=["pos", "button"])
 
     def _handle_mouse(self, *args, pos, button, **kwargs):
-        if button == pygame.BUTTON_LEFT:
-            self.logger.debug(f"Click on LEFT button on {pos}")
+        self.logger.debug(f"Click on {pos}")
 
-            for cell in self.render.playground.cells_manager.cells:
-                if cell.rect.collidepoint(pos):
-                    self.logger.debug(f"Click on {cell.state}")
+        if button == pygame.BUTTON_LEFT:
+            self._handle_left_click(pos)
 
         elif button == pygame.BUTTON_RIGHT:
             self.logger.debug(f"Click on RIGHT button on {pos}")
+
+    def _handle_left_click(self, pos):
+        w = self.render.playground.cells_manager.cell_width
+        h = self.render.playground.cells_manager.cell_height
+
+        try:
+            x, y = math.ceil(pos[0] / w) - 1, math.ceil(pos[1] / h) - 1
+
+            self.logger.debug(f"Assume that cell ({x}, {y})")
+            self.logger.debug(f"{self.state.cells[y][x]}")
+        except Exception as e:
+            self.logger.exception("Something goes wrong while calculate cell address.")
+
+            return
+
+        self.state.handle_click_on_ball(x, y)

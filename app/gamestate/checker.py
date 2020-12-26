@@ -2,7 +2,7 @@ import logging
 
 from typing import List
 
-from .cell import CellState
+from .objects import CellState
 
 
 class DestroyableChecker:
